@@ -11,10 +11,13 @@ process.env.DB_PATH = dbFile;
 const { createApp } = require("../server");
 
 let server;
+let db;
 let base;
 
 before(async () => {
-  const { app } = await createApp();
+  const created = await createApp();
+  const app = created.app;
+  db = created.db;
   await new Promise((resolve) => {
     server = app.listen(0, resolve);
   });
@@ -23,7 +26,12 @@ before(async () => {
 
 after(async () => {
   await new Promise((resolve) => server.close(resolve));
-  fs.rmSync(dbFile, { force: true });
+  await db.close();
+  try {
+    fs.rmSync(dbFile, { force: true, maxRetries: 5, retryDelay: 100 });
+  } catch (err) {
+    console.warn("Could not delete the temporary test database:", err.code);
+  }
 });
 
 async function call(method, url, body, rawBody) {

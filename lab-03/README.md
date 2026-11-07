@@ -4,7 +4,7 @@
 
 **Subject:** Backend Development Fundamentals (Year II, Term II)
 
-**Live link:** https://YOUR-SERVICE-NAME.onrender.com *(replace this with your Render URL after deploying, see the Deployment section)*
+**Live link:** https://bdf-lab-03-yashwanth.onrender.com 
 
 ---
 

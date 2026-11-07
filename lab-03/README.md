@@ -406,7 +406,9 @@ The API can be deployed on Render as a Web Service.
 | Build Command | `npm install` |
 | Start Command | `npm start` |
 | Instance type | Free |
-| Environment variables | none needed (`PORT` is set by Render) |
+| Environment variables | `NODE_VERSION` = `22` (see the note below), `PORT` is set by Render |
+
+**Database package version:** the newest `sqlite3` (6.x) ships a prebuilt binary that needs glibc 2.38, and Render's servers have an older glibc, so the first deploys crashed with `GLIBC_2.38 not found` (`ERR_DLOPEN_FAILED`). This project uses `sqlite3` 5.1.7, whose prebuilt binary only needs very old glibc versions, and it works on Render. Node is also pinned to 22 with the `NODE_VERSION` variable, and `package.json` has `"node": ">=20 <23"` so the range is bounded.
 
 The free plan sleeps when idle, so the first request after a break can take around 50 seconds. SQLite stores data in a file and the free plan's disk is not permanent, so the database is recreated with the 12 sample books when the service restarts or redeploys. This is fine for a lab, and a real project would use a hosted database.
 
@@ -433,4 +435,5 @@ The free plan sleeps when idle, so the first request after a break can take arou
 | With Express 5 a port conflict printed "running" but the server never started | Checked the `err` argument in the `app.listen` callback and exited with a message |
 | A bad id like `abc` and a missing id like `9999` both looked like "not found" | Used 400 for an invalid id and 404 for a valid id that does not exist |
 | Invalid JSON in the body gave a long default Express error | Added an error handler that returns `{ "message": "Request body is not valid JSON" }` with 400 |
+| The first Render deploys crashed with `ERR_DLOPEN_FAILED` and `GLIBC_2.38 not found` for `sqlite3` | Render has an older glibc than the `sqlite3` 6.x binary needs. I changed to `sqlite3` 5.1.7 and pinned Node 22 (`NODE_VERSION=22`, `engines` set to `>=20 <23`) |
 | The total count changed meaning when filters were used | Ran the `COUNT(*)` query with the same `WHERE` filters as the list query |
